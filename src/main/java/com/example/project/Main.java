@@ -193,14 +193,27 @@ public class Main {
     /** Replaces lone occurrences of the target value in the list 
      *  with the larger of the numbers next to it. 
      */
-    public static ArrayList<Integer> notAlone(ArrayList<Integer> list, int val) {
-        for (int i = 1; i < list.size() - 1; i++) {
-            if (list.get(i) == val && list.get(i - 1) != val && list.get(i + 1) != val) {
-                list.set(i, Math.max(list.get(i - 1), list.get(i + 1)));
+    public static ArrayList<Integer> notAlone(ArrayList<Integer> list, int val){
+        for (int i = 0; i < list.size(); i++){
+            if(val == list.get(i) && i==0){
+                list.set(0, list.get(i + 1));
+            } else if (val == list.get(i)){
+                if (i > 0 && i < list.size() - 1) {
+                    if (list.get(i - 1) != val && list.get(i + 1) != val) {
+                        int larger = Math.max(list.get(i - 1), list.get(i + 1));
+                        list.set(i, larger);
+                    }
+                } else if (i == list.size() - 1 && list.size() > 1) {
+                    if (list.get(i - 1) != val) {
+                        list.set(i, list.get(i - 1));
+                    }
+                }
             }
         }
         return list;
     }
+    
+
 
     /** Left shifts the array, moving all elements one position to the left */
     public static ArrayList<Integer> shiftLeft(ArrayList<Integer> list) {
@@ -214,44 +227,79 @@ public class Main {
 
     /** Moves each 3 to be followed by a 4 in the array */
     public static ArrayList<Integer> fix34(ArrayList<Integer> list) {
-        for (int i = 0; i < list.size() - 1; i++) {
-            if (list.get(i) == 3 && list.get(i + 1) != 4) {
-                for (int j = i + 1; j < list.size(); j++) {
-                    if (list.get(j) == 4) {
-                        list.set(i + 1, 4);
-                        list.set(j, 3);
-                        break;
-                    }
+        int i = 0;
+        
+        while (i < list.size()) {
+            if (list.get(i) == 3) { // looks for 3
+                int j = 0;
+                boolean swapped = false;
+                
+            while (j < list.size() && !swapped) { //looks for 4 thats not after 3
+                if (list.get(j) == 4 && (j == 0 || list.get(j - 1) != 3)) {
+                // Swap the number after 3 with this 4
+                    int temp = list.get(i + 1);
+                    list.set(i + 1, 4);
+                    list.set(j, temp);
+                    swapped = true;
                 }
+                j++;
             }
         }
-        return list;
+        i++;
     }
+        
+    return list;
+    }
+    
 
     // Returns the mode(s) of a list of integers
-    public static ArrayList<Integer> modes(ArrayList<Integer> numList) {
-        int maxCount = 0;
-        ArrayList<Integer> modes = new ArrayList<>();
-
+    public static ArrayList<Integer> modes(int[] numList) {
+        ArrayList<Integer> modeList = new ArrayList<>();
+        int maxFrequency = 0;
+        boolean allSameFrequency = true;
+    
+        int maxValue = numList[0]; // Find the max
         for (int num : numList) {
-            int count = 0;
-            for (int other : numList) {
-                if (other == num) {
-                    count++;
-                }
-            }
-
-            if (count > maxCount) {
-                maxCount = count;
-                modes.clear();
-                modes.add(num);
-            } else if (count == maxCount && !modes.contains(num)) {
-                modes.add(num);
+            if (num > maxValue) {
+                maxValue = num;
             }
         }
-
-        return modes;
+    
+        int[] frequencies = new int[maxValue + 1];// store freq
+    
+        for (int num : numList) { // Count freq
+            frequencies[num]++;
+            if (frequencies[num] > maxFrequency) {
+                maxFrequency = frequencies[num];
+            }
+        }
+    
+        int firstNonZeroFrequency = 0; // Check if all freq are the same
+        int i = 0;
+        while (i < frequencies.length && allSameFrequency) {
+            if (frequencies[i] != 0) {
+                if (firstNonZeroFrequency == 0) {
+                    firstNonZeroFrequency = frequencies[i];
+                } else if (frequencies[i] != firstNonZeroFrequency) {
+                    allSameFrequency = false;
+                }
+            }
+            i++;
+        }
+    
+       
+        if (!allSameFrequency) { // all freq are the same
+            // Collect modes
+            for (int j = 0; j < frequencies.length; j++) {
+                if (frequencies[j] == maxFrequency) {
+                    modeList.add(j);
+                }
+            }
+        }
+    
+        return modeList;
     }
+
 
     public static void main(String[] args) {
         // Test all methods here (you can call any of the above methods in the main method if you wish)
